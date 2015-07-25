@@ -1,0 +1,128 @@
+using System;
+namespace DelegatesAndEventsUsingFizzBuzz
+{
+    public delegate string FizzBuzzDelegate(string s);
+    // FizzBuzzDelegate is a delegate that takes and returns a string    
+    // Not the signature, the first string is the return type and the second string is the input parameter for the delegate
+
+    public class FizzBuzzClass
+    {
+        //This is the class that raises the event Fizz Buzz Event
+        public FizzBuzzClass()
+        {
+        }
+
+        public event FizzBuzzDelegate FizzEvent;
+        // Not how the event is defined. It is defined as event followed by Delegate name & then the event Name
+
+        public event FizzBuzzDelegate BuzzEvent;
+        public event FizzBuzzDelegate FizzBuzzEvent;
+        public event FizzBuzzDelegate NotEligibleEvent;
+        
+        // Event logic- Fizz Buzz
+        // This class raises 4 events
+        // When an input is divisible by 3 it raises Fizz Event
+        // When an input is divisible by 5 it raises Buzz Event
+        // When an input is divisible by 3 & 5 it raises a Fizz Buzz Event
+        // When an input is NOT divisible by both 3 & 5 it raises a Not Eligible Event
+
+        public virtual void ReceiveInput(int input)
+        {
+            // This class is defined virtual, so that a class that extends from it, can chose to override this method and modify when the event is raised
+            if (input % 3 == 0 && input % 5 == 0)
+            {
+                //Exactly divisible by both 3 & 5
+                if (FizzBuzzEvent!= null)
+                FizzBuzzEvent("input " + input + " is eligible for FizzBuzz.");
+                //The event was raised by this class. 
+                // So all subscribers of this FizzBuzzEvent event will have their callbacks invoked if registered.
+            }
+            else if (input % 3 == 0)
+            {
+                //Exactly divisible by only 3
+                if (FizzEvent != null) FizzEvent("input " + input + " is eligible for Fizz.");
+            }
+            else if (input % 5 == 0)
+            {
+                //Exactly divisible by only 5
+                if (BuzzEvent != null) BuzzEvent("input " + input + " is eligible for Buzz.");
+            }
+            else
+            {
+                // Not divisible by both 3 & 5
+                if (NotEligibleEvent != null) NotEligibleEvent("input " + input + " is eligible for None.");
+            }
+        }              
+    }
+
+    public class FizzBuzzClient
+    {
+        // This is the class that has the call back function for 4 events that are raised by FizzBuzz class
+        FizzBuzzClass fbc = null;
+        public FizzBuzzClient()
+        {
+            fbc = new FizzBuzzClass();
+            
+            // Below is procedure to add callback to event
+            // Look at how the delegate is instantiated and the callback method is passed on.
+
+            fbc.FizzBuzzEvent += new FizzBuzzDelegate(FizzBuzzCallBack);
+            fbc.FizzBuzzEvent += new FizzBuzzDelegate(FizzBuzzCallBack2);
+            // Note client is registering two callbacks FizzBuzzCallBack & FizzBuzzCallBack2 for same event. 
+
+            fbc.FizzEvent += new FizzBuzzDelegate(FizzCallBack);
+            fbc.BuzzEvent += new FizzBuzzDelegate(BuzzCallBack);
+            fbc.NotEligibleEvent += new FizzBuzzDelegate(NotEligibleCallBack);
+
+            // Above you can see that 4 separate call backs are registered for the 4 events separately 
+            // Above line registers the call back functions
+
+            //Client can unregister using de.FizzBuzzEvent -= new FizzBuzzEvent(CallBackFn);
+            fbc.ReceiveInput(15);
+            fbc.ReceiveInput(6);
+            fbc.ReceiveInput(10);
+            fbc.ReceiveInput(16);            
+
+            // For ease of demonstration, above method, raises the event. this is atypical of real word events
+        }
+        
+        public string FizzBuzzCallBack(string s)
+        {
+            //The call back function for FizzBuzz event in client
+            Console.WriteLine(s);
+            return s;
+        }
+
+        public string FizzBuzzCallBack2(string s)
+        {
+            //The call back function for FizzBuzz event in client
+            Console.WriteLine(s);
+            return s;
+        }
+
+        public string FizzCallBack(string s)
+        {
+            //The call back function for Fizz event in client
+            Console.WriteLine(s);
+            return s;
+        }
+        public string BuzzCallBack(string s)
+        {
+            //The call back function for Buzz event in client
+            Console.WriteLine(s);
+            return s;
+        }
+        public string NotEligibleCallBack(string s)
+        {
+            //The call back function for NoEvent in client
+            Console.WriteLine(s);
+            return s;
+        }
+
+        public static void Main(string[] args)
+        {
+            FizzBuzzClient dc = new FizzBuzzClient();
+            Console.WriteLine("The End");
+        }
+    }
+}
